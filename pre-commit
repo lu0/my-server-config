@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit".  The hook looks for files with words
+# "lu0", "lucero", "stash", "temp" and shows a warning.
+#
+# Install:
+# chmod +x ./pre-commit
+# ln -srf ./pre-commit ./.git/hooks/pre-commit
+#
+
+flags=$(git diff -U0 --no-ext-diff --staged | egrep -i --count "lu0|lucero|stash|temp")
+if [ "$flags" -ne "0" ]; then
+   echo "WARNING! You are attempting to commit sensitive data from:"
+   git diff --no-ext-diff --staged --name-only -i -G "lu0|lucero|stash|temp" | sed 's/^/\t* /'
+   echo -e "\nPlease review and unstage relevant hunks of those files with:"
+   echo -e "\tgit reset --patch"
+   echo -e "\nCommit using the '--no-verify' option to ignore this warning (not recommended!)"
+   exit 1 
+fi

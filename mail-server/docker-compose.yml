@@ -1,0 +1,35 @@
+version: '2.2'
+
+services:
+  mailserver:
+    container_name: mailserver
+    image: mailserver/docker-mailserver:10.1.2
+    hostname: mail
+    domainname: ${HOSTNAME}
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ${HOME}/mail-server/data/maildata:/var/mail
+      - ${HOME}/mail-server/data/mailstate:/var/mail-state
+      - ${HOME}/mail-server/data/maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
+      - ${HOME}/mail-server/config/:/tmp/docker-mailserver/
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - SPAMASSASSIN_SPAM_TO_INBOX=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=1
+      - ENABLE_SASLAUTHD=0
+      - ONE_DIR=1
+      - DMS_DEBUG=0
+      - OVERRIDE_HOSTNAME=mail.${HOSTNAME}
+    restart: always
+    cpus: 0.4
+    mem_limit: 1gb
+    memswap_limit: 1gb
+    cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
+ 

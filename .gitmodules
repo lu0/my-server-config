@@ -1,0 +1,3 @@
+[submodule "mail-server/docker-mailserver"]
+	path = mail-server/docker-mailserver
+	url = https://github.com/docker-mailserver/docker-mailserver

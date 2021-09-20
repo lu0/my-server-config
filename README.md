@@ -173,7 +173,7 @@ Use this TXT record for the `_dmarc` prefix, or create your own:
 ```txt
 v=DMARC1; p=reject; rua=mailto:dmarc@example.com; fo=1
 ```
-[Configure a mail server in your VPS](#mail-configuration) to generate a `DKIM` key.
+[Configure a mail server in your VPS](#4-mail-server) to generate a `DKIM` key.
 
 
 # 4. Mail server

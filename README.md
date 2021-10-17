@@ -227,3 +227,21 @@ dig example.com TXT
 dig _dmarc.example.com TXT
 dig mail._domainkey.example.com TXT # DKIM
 ```
+
+
+# 5. NGINX Server
+
+I use nginx as the web server and reverse proxy for my services.
+
+Create a symlink to your (future) configurations.
+```sh
+mkdir -p nginx/conf.d
+sudo rm -rf /etc/nginx/conf.d
+sudo ln -srf ./nginx/conf.d /etc/nginx/conf.d
+
+touch nginx/nginx.conf
+sudo rm -rf /etc/nginx/nginx.conf
+sudo ln -srf ./nginx/nginx.conf /etc/nginx/
+```
+
+Create and/or modify your configs and then reload the server.

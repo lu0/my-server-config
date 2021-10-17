@@ -1,2 +1,6 @@
 mail-server/config
 mail-server/data
+SEND.md
+
+# Nginx configs
+nginx/conf.d/test.conf

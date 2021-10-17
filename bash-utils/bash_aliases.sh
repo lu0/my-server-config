@@ -7,7 +7,26 @@ alias fuser="fuser -n tcp -k"
 alias kill-nginx="systemctl stop nginx"
 alias reload-nginx="systemctl reload nginx"
 
-# Aliases I use a lot ---------------------------------------------------------------
+# Mail
+alias kill-mail="docker-compose -f ${HOME}/mail-server/docker-compose.yml down"
+alias reload-mail="kill-mail && docker-compose -f ${HOME}/mail-server/docker-compose.yml up -d --force-recreate"
+
+alias mail-setup="${GIT_DIR_MAIL}/setup.sh"
+alias _mail-mx='echo -e "MX:\t\tmail.${HOSTNAME}"'
+alias _mail-blank='echo -e "TXT blank:\tv=spf1 mx a:mail.${HOSTNAME} -all"'
+alias _mail-dmarc='echo -e "TXT _dmarc:\tv=DMARC1; p=reject; rua=mailto:dmarc@${HOSTNAME}; fo=1"'
+alias _mail-dkim="sudo cat ${HOME}/mail-server/config/opendkim/keys/${HOSTNAME}/mail.txt"
+
+function mail-dns-show() {
+    _mail-mx
+    _mail-blank
+    _mail-dmarc
+    echo -e "\nTXT DKIM:"
+    _mail-dkim
+}
+
+
+# Aliases and functions I use a lot ---------------------------------------------------------------
 alias cp="cp -riv"      # verbose
 alias mkdir="mkdir -pv" # parent, verbose
 alias rm="rm -i"
@@ -17,6 +36,39 @@ alias duall="sudo du -hd 1 . | sort -h" # size of subdirectories (1st level)
 alias dfall="sudo df -h 1 .  | sort -h" # available space
 
 alias dps='docker ps -a --no-trunc --format "table{{.Names}}\t{{.CreatedAt}}\t{{.Ports}}\t{{.Command}}"'
+
+alias chmodcode="stat --format '%a'"
+
+function chmodset() {
+    usage() {
+        echo -e "\nSet permissions recursively :D"
+        echo -e "\nUsage: chmodset [-d|f|a] <file or dir>"
+        echo -e "\nOptions:"
+        echo -e "   -d     Set permission to directories only."
+        echo -e "   -f     Set permission to files only."
+        echo -e "   -a     Set permission to every object."
+        echo
+    }
+    PASSED_OPT="true"
+    local OPTIND=1
+    while getopts :dfa opt; do
+        case $opt in
+            d)
+                sudo find ${3} -type d -exec chmod ${2} {} \;
+                return ;;
+            f)
+                sudo find ${3} -type f -exec chmod ${2} {} \;
+                return ;;
+            a)
+                sudo chmod -R ${2} ${3}
+                return ;;
+            *)
+                usage; return ;;
+        esac
+    done
+    PASSED_OPT=
+    [ -z "$PASSED_OPT" ] && usage && return
+}
 
 #
 # Git aliases and functions I use ---------------------------------------------------------------------
@@ -129,16 +181,15 @@ function gsshow() {
   git stash show -p $(git stash list | grep "$*" | cut -d: -f1) # $* name of stash
 }
 
-alias mail-setup="${GIT_DIR_MAIL}/setup.sh"
-alias _mail-mx='echo -e "MX:\t\tmail.${HOSTNAME}"'
-alias _mail-blank='echo -e "TXT blank:\tv=spf1 mx a:mail.${HOSTNAME} -all"'
-alias _mail-dmarc='echo -e "TXT _dmarc:\tv=DMARC1; p=reject; rua=mailto:dmarc@${HOSTNAME}; fo=1"'
-alias _mail-dkim="sudo cat ${HOME}/mail-server/config/opendkim/keys/${HOSTNAME}/mail.txt"
 
-function mail-dns-show() {
-    _mail-mx
-    _mail-blank
-    _mail-dmarc
-    echo -e "\nTXT DKIM:"
-    _mail-dkim
+#
+# Misc
+#
+
+alias setclip="xclip -selection c"
+function base64-encode() {
+    echo -n "${1}" | base64 | setclip
+}
+function base64-decode() {
+    echo -n "${1}" | base64 -d | setclip
 }
